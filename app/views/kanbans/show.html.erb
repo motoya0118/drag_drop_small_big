@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<div class="kanban" data-id="<%= @kanban.id %>">
+  <% @kanban.kanban_bigs.each do |big| %>
+    <div id="kanban-big" class="kanban-big" data-big-id=<%= big.id %> >
+      <div class="kanban-big-name"><%= big.name %></div>
+      <% big.kanban_smalls.each do |small| %>
+        <ul class="kanban-small" data-small-id=<%= small.id %> >
+        <li class="kanban-small-name"><%= small.name %></li>
+        <% small.cards.sort_by{ |card| card.position}.each do |item| %>
+          <li class="kanban-col-item" data-item-id=<%= item.id %> >
+          <%= item.content %>
+          </li>
+        <% end %>
+        </ul>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<%= link_to 'Edit', edit_kanban_path(@kanban) %> |
+<%= link_to 'Back', kanbans_path %>
