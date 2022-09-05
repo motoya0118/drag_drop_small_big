@@ -1,12 +1,15 @@
 import Sortable from 'sortablejs';
 const initKanbanSortable = (canElements,target) => {
+  var count = 0;
+  var sortable = [];
   canElements.forEach((ul) => {
-      new Sortable(ul, {
+      sortable[count] = new Sortable(ul, {
         group: 'can', // set both lists to same group
         animation: 300,
         handle: target,
-        swapThreshold: 0,
     });
+    count++;
+    console.log(sortable)
   });
 };
 export { initKanbanSortable };
