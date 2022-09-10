@@ -1,15 +1,12 @@
-import Sortable from 'sortablejs';
+import { Draggable } from '@shopify/draggable';
 const initKanbanSortable = (canElements,target) => {
   var count = 0;
-  var sortable = [];
   canElements.forEach((ul) => {
-      sortable[count] = new Sortable(ul, {
-        group: 'can', // set both lists to same group
-        animation: 300,
-        handle: target,
+      new Draggable.default(ul, {
+        draggable: 'li'
     });
     count++;
-    console.log(sortable)
+    console.log(Draggable)
   });
 };
 export { initKanbanSortable };

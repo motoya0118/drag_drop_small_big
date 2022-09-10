@@ -27,6 +27,6 @@
     </div>
   <% end %>
 </div>
-
+<%= tag.div id: :boards, data: { lists: @kanban.kanban_bigs.to_json(include: {kanban_smalls: {include: :cards}}) } %>
 <%= link_to 'Edit', edit_kanban_path(@kanban) %> |
 <%= link_to 'Back', kanbans_path %>
