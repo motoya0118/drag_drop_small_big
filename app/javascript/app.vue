@@ -1,4 +1,7 @@
 <template>
+  <!-- <draggable v-model="bigs" :options="bigoption" class="board dragArea" @end="listMoved">
+    <div v-for="(big, index) in bigs">{{big.name}}</div>
+  </draggable> -->
   <draggable v-model="lists" :options="{group: 'lists'}" class="board dragArea" @end="listMoved">
     <list v-for="(list, index) in lists" :list="list"></list>
   </draggable>
@@ -16,7 +19,15 @@ export default {
   data: function(){
     return{
       lists: this.original_lists,
+      bigs: [{
+        no:1, name:'大', categoryNo:'1'
+      }],
+      bigoption: {group:{
+      name:"big",
+      pull: "clone",
+      put: "lists"
     }
+    }}
   },
 
   methods: {
