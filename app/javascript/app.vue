@@ -6,7 +6,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import list from 'components/list'
+import list from './components/list'
 
 export default {
   components: { draggable, list },

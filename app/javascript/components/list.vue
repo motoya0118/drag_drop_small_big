@@ -4,10 +4,10 @@
       <hr />
 
       <draggable v-model="list.kanban_smalls" :options="{group: 'smalls'}" class="dragArea" @change="smallMoved">
-        <div v-for="(small, index) in list.kanban_smalls" class="small small-body mb-3">
+        <div v-for="(small, index) in list.kanban_smalls" class="small small-body">
           {{ small.name }}
           <draggable v-model="small.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
-            <div v-for="(card, index) in small.cards" class="card card-body mb-3">
+            <div v-for="(card, index) in small.cards" class="card card-body" @dblclick="deleteItem">
               {{ card.content }}
             </div>
           </draggable>
@@ -59,44 +59,48 @@ export default{
           })
       },
       cardMoved: function(event) {
-          const evt = event.added || event.moved
-          if (evt == undefined){ return }
-
-          const element = evt.element
-          // const list_index = window.store.lists.findIndex((list) => {
-          //     return list.kanban_smalls.findIndex((small) => {
-          //       return small.cards.find((card)=>{
-          //         card.id = element.id
-          //       })
-          //       })
-          // })
-            window.store.lists.forEach(big => {
-              big.kanban_smalls.forEach(small =>{
-                small.cards.forEach(card =>{
-                  if (card.id == element.id){
-                    var data = new FormData
-                    data.append("card[kanban_small_id]",small.id)
-                    data.append("card[position]", evt.newIndex + 1)
-
-                    Rails.ajax({
-                      url: `/cards/${element.id}/move`,
-                      type: "PATCH",
-                      data: data,
-                      dataType: "json",
-                    })
+        console.log(event)
+        const evt = event.added || event.moved
+        if (evt == undefined){ return }
+        const element = evt.element
+          window.store.lists.forEach(big => {
+            big.kanban_smalls.forEach(small =>{
+              small.cards.forEach(card =>{
+                if (card.id == element.id){
+                  var data = new FormData
+                  data.append("card[kanban_small_id]",small.id)
+                  data.append("card[position]", evt.newIndex + 1)
+                  Rails.ajax({
+                    url: `/cards/${element.id}/move`,
+                    type: "PATCH",
+                    data: data,
+                    dataType: "json",
+                  })
+                }
+              })
+            })              
+          });
+        },
+      deleteItem: function(event) {
+        console.log(event)
+        console.log(window.store.lists)
+        const evt = event
+        const element = evt.element
+          console.log(element)
+          window.store.lists.forEach((big,bigindex) => {
+            big.kanban_smalls.forEach((small,smallindex) =>{
+              small.cards.forEach((card,cardindex) =>{
+                if (card.id == element.id){
+                  console.log(element.id)
+                  this.list.kanban_smalls[smallindex].cards.splice(cardindex,1)
                   }
                 })
-              })              
-            });
-          
-          // const small_index = window.store.lists.findIndex((list) => {
-          //     return list.ids.find((card) => {
-          //     return card.id == element.id
-          //     })
-          // })
+              }
+            )}
+          )
+        }
+        
 
-          
-      },
   }
 }
 </script>
@@ -107,6 +111,9 @@ export default{
 }
   
 .list{
+  list-style: none;
+  border-style: solid;
+  border-color: red;
   background: #E2E4E6;
   border-radius: 3px;
   display: inline-block;
@@ -115,4 +122,23 @@ export default{
   vertical-align: top;
   width: 270px;
 }
+.small {
+  list-style: none;
+  width: 200px;
+  padding: 0;
+  margin: 8px;
+  border-style: solid;
+  border-color: blue;
+  background: yellow;
+}
+.card {
+  background-color: white;
+  margin-bottom: 4px;
+  padding: 16px;
+  cursor: grab;
+  word-break: break-all;
+  overflow-wrap : break-word;
+}
+
+
 </style>
