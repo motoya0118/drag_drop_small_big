@@ -1,13 +1,13 @@
 <template>
-  <div class="list">
+  <div class="list" @dblclick="deleteBig(list.id)">
       <h6>{{ list.name }}</h6>
       <hr />
 
       <draggable v-model="list.kanban_smalls" :options="{group: 'smalls'}" class="dragArea" @change="smallMoved">
-        <div v-for="(small, index) in list.kanban_smalls" class="small small-body">
+        <div v-for="(small, index) in list.kanban_smalls" class="small small-body" @dblclick="deleteSmall(small.id)" @dblclick.stop="deleteBig">
           {{ small.name }}
           <draggable v-model="small.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
-            <div v-for="(card, index) in small.cards" class="card card-body" @dblclick="deleteItem">
+            <div v-for="(card, index) in small.cards" class="card card-body" @dblclick="deleteCard(card.id)" @dblclick.stop="deleteSmall">
               {{ card.content }}
             </div>
           </draggable>
@@ -81,28 +81,55 @@ export default{
             })              
           });
         },
-      deleteItem: function(event) {
-        console.log(event)
-        console.log(window.store.lists)
-        const evt = event
-        const element = evt.element
-          console.log(element)
-          window.store.lists.forEach((big,bigindex) => {
-            big.kanban_smalls.forEach((small,smallindex) =>{
-              small.cards.forEach((card,cardindex) =>{
-                if (card.id == element.id){
-                  console.log(element.id)
-                  this.list.kanban_smalls[smallindex].cards.splice(cardindex,1)
+        deleteCard: function(dbl_card) {
+          window.store.lists.forEach( big => {
+            big.kanban_smalls.forEach( small =>{
+              small.cards.forEach( card =>{
+                if (card.id == dbl_card){
+                  console.log('dt')
+                  const card_index = small.cards.indexOf(card)
+                  const small_index = big.kanban_smalls.indexOf(small)
+                  this.list.kanban_smalls[small_index].cards.splice(card_index,1)
+                  Rails.ajax({
+                    url: `/cards/${card.id}`,
+                    type: "DELETE",
+                    dataType: "json",
+                  })
                   }
                 })
               }
             )}
           )
-        }
+        },
+        deleteSmall: function(dbl_small) {
+        console.log(dbl_small)
+          window.store.lists.forEach( big => {
+            big.kanban_smalls.forEach( small =>{
+              if (small.id == dbl_small){
+                const small_index = big.kanban_smalls.indexOf(small)
+                this.list.kanban_smalls.splice(small_index,1)
+                Rails.ajax({
+                  url: `/kanban_smalls/${small.id}`,
+                  type: "DELETE",
+                  dataType: "json",
+                  })
+                }
+              })
+            }
+          )},
+          deleteBig: function(dbl_big) {
+            console.log(this.$destroy())
+            this.list = null
+            // Rails.ajax({
+            //   url: `/kanban_bigs/${dbl_big}`,
+            //   type: "DELETE",
+            //   dataType: "json",
+            //   })
+            }
+        },
         
 
   }
-}
 </script>
 
 <style scoped>

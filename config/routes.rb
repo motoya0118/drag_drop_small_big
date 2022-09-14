@@ -7,16 +7,19 @@ Rails.application.routes.draw do
   resources :kanban_bigs do
     member do
       patch :move
+      delete :destroy
     end
   end
   resources :kanban_smalls do
     member do
       patch :move
+      delete :destroy
     end
   end
   resources :cards do
     member do
       patch :move
+      delete :destroy
     end
   end
   root to: "pages#home"

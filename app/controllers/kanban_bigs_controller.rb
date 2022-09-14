@@ -5,6 +5,10 @@ class KanbanBigsController < ApplicationController
     @kanban.insert_at(kanban_params[:position].to_i)
     render template: "kanbans/show"
   end
+  def destroy
+    @kanban = KanbanBig.find(params[:id])
+    @kanban.destroy
+  end
 
   private
   def kanban_params

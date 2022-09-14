@@ -5,6 +5,11 @@ class KanbanSmallsController < ApplicationController
     @small.update(small_params)
   end
 
+  def destroy
+    @small = KanbanSmall.find(params[:id])
+    @small.destroy
+  end
+
   private
   def small_params
     params.require(:small).permit(:name, :kanban_big_id, :position)

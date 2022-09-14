@@ -1,32 +1,15 @@
 <nav class="navbar navbar-expand-sm navbar-info bg-info mt-3 mb-3">
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">モード1</li>
-      <li class="nav-item active">モード2</li>
-      <li class="nav-item active">モード3</li>
+      <li id="mode1" class="nav-item active">モード1</li>
+      <li id="mode2" class="nav-item active">モード2</li>
+      <li id="mode3" class="nav-item active">モード3</li>
     </ul>
   </div>
 </nav>
       
 <p id="notice"><%= notice %></p>
 
-<div class="kanban" data-id="<%= @kanban.id %>">
-  <% @kanban.kanban_bigs.each do |big| %>
-    <div id="kanban-big" class="kanban-big" data-big-id=<%= big.id %> >
-      <div class="kanban-big-name"><%= big.name %></div>
-      <% big.kanban_smalls.each do |small| %>
-        <ul class="kanban-small" data-small-id=<%= small.id %> >
-        <li class="kanban-small-name"><%= small.name %></li>
-        <% small.cards.sort_by{ |card| card.position}.each do |item| %>
-          <li class="kanban-col-item" data-item-id=<%= item.id %> >
-          <%= item.content %>
-          </li>
-        <% end %>
-        </ul>
-      <% end %>
-    </div>
-  <% end %>
-</div>
 <%= tag.div id: :boards, data: { lists: @kanban.kanban_bigs.to_json(include: {kanban_smalls: {include: :cards}}) } %>
 <%= link_to 'Edit', edit_kanban_path(@kanban) %> |
 <%= link_to 'Back', kanbans_path %>

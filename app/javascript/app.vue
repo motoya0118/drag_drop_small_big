@@ -1,6 +1,6 @@
 <template>
-  <!-- <draggable v-model="bigs" :options="bigoption" class="board dragArea" @end="listMoved">
-    <div v-for="(big, index) in bigs">{{big.name}}</div>
+  <!-- <draggable v-model="bigs" :options='bigoption' @end="listMoved">
+    <div v-for="big in bigs">{{big.name}}</div>
   </draggable> -->
   <draggable v-model="lists" :options="{group: 'lists'}" class="board dragArea" @end="listMoved">
     <list v-for="(list, index) in lists" :list="list"></list>
@@ -16,24 +16,23 @@ export default {
 
   props:["original_lists"],
 
-  data: function(){
-    return{
+  data() {return{
       lists: this.original_lists,
-      bigs: [{
-        no:1, name:'大', categoryNo:'1'
-      }],
-      bigoption: {group:{
-      name:"big",
-      pull: "clone",
-      put: "lists"
-    }
+      bigs: [{name: "大"}],
+      bigoption:{
+        group:{
+          name:"lists",
+          pull: "clone",
+          put: false
+        },
+        sort: false
     }}
   },
-
   methods: {
     listMoved: function(event) {
       var data = new FormData
       data.append("kanban[position]", event.newIndex + 1)
+      
 
       Rails.ajax({
         url: `/kanban_bigs/${this.lists[event.newIndex].id}/move`,
@@ -42,6 +41,7 @@ export default {
         dataType: "json",
       })
     },
+    
   }
 }
 </script>
