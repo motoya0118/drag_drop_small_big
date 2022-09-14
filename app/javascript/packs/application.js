@@ -18,38 +18,39 @@ Vue.use(TurbolinksAdapter)
 
 window.store = {}
 
-
 document.addEventListener("turbolinks:load", function() {
     var element = document.querySelector("#boards")
     if (element != undefined) {
-        window.store.lists = JSON.parse(element.dataset.lists)
         
+        // window.store.lists = JSON.parse(element.dataset.lists)
         const app = new Vue({
-            el: element,
-            data: window.store,
+            // el: element,
+            el: '#boards',
+            // data: window.store,
             template: "<App :original_lists='lists' />",
             components: { App }
         })
+        console.log(app)
     }
-    var element2 = document.querySelector("#mode1")
-    if (element2 != undefined) {
-        const app = new Vue({
-            el: element2,
-            data(){return{
-                    tests: [{name:'big'}],
-                    availableItemOptions:{
-                        group: {
-                            name: "lists",
-                            pull: "clone",
-                            put: false
-                            },
-                        sort: false
-                    }}},
-            created: function() {
-                console.log(data)
-            },
-            template: "<draggable v-model='tests' :options='availableItemOptions'><div v-for='test in tests'>{{test.name}}</div></draggable>",
-            components: { draggable },
-        })
-    }
+    // var element2 = document.querySelector("#mode1")
+    // if (element2 != undefined) {
+    //     const app = new Vue({
+    //         el: element2,
+    //         data(){return{
+    //                 tests: [{name:'big1'}],
+    //                 availableItemOptions:{
+    //                     group: {
+    //                         name: "lists",
+    //                         pull: "clone",
+    //                         put: false
+    //                         },
+    //                     sort: false
+    //                 }}},
+    //         // created: function() {
+    //         //     console.log(data)
+    //         // },
+    //         template: "<draggable v-model='tests' :options='availableItemOptions'><div v-for='test in tests'>{{test.name}}</div></draggable>",
+    //         components: { draggable },
+    //     })
+    // }
 });
