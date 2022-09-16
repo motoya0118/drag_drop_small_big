@@ -1,28 +1,28 @@
 <template>
-  <div class="list" @dblclick="deleteBig(list.id)">
-      <h6>{{ list.name }}</h6>
-      <hr />
-
-      <draggable v-model="list.kanban_smalls" :options="{group: 'smalls'}" class="dragArea" @change="smallMoved">
-        <div v-for="(small, index) in list.kanban_smalls" class="small small-body" @dblclick="deleteSmall(small.id)" @dblclick.stop="deleteBig">
-          {{ small.name }}
-          <draggable v-model="small.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
-            <div v-for="(card, index) in small.cards" class="card card-body" @dblclick="deleteCard(card.id)" @dblclick.stop="deleteSmall">
-              {{ card.content }}
-            </div>
-          </draggable>
-        </div>
-      </draggable>
-      
-      <!-- <a v-if="!editing" v-on:click="startEditing">Add a card</a>
-      <textarea v-if="editing" ref="message" v-model="message" class="form-control" ></textarea>
-      <button v-if="editing" v-on:click="submitMessage" class="btn btn-secondary">Add</button>
-      <a v-if="editing" v-on:click="editing=false">Cancel</a> -->
+  <div v-if="!list.edit" class="list" @dblclick="$emit('delete',list.id)" @click="list.edit=true">
+    <h6>{{ list.name }}</h6>
+    <hr />
+    <draggable v-model="list.kanban_smalls" :options="{group: 'smalls'}" class="dragArea" @change="smallMoved">
+      <div v-if="!small.edit" v-for="(small, index) in list.kanban_smalls" class="small small-body" @dblclick.stop="deleteSmall(small.id)" @click.stop="small.edit = true">
+        {{ small.name }}
+        <draggable v-model="small.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
+          <div v-if="!card.edit" v-for="(card, index) in small.cards" class="card card-body" @dblclick.stop="deleteCard(card.id)" @click.stop="card.edit = true">
+            {{ card.content }}
+          </div>
+          <input v-else type="text" class="form-control" v-model="card.content" v-on:blur="cardBlur(card)" v-focus></input>
+        </draggable>
+      </div>
+      <input v-else type="text" class="form-control" v-model="small.name" v-on:blur="smallBlur(small)" v-focus></input>
+    </draggable>
   </div>
+  <input v-else type="text" class="form-control" v-model="list.name" v-on:blur="listBlur(list)" v-focus></input>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
+
+
+
 
 export default{
   components: { draggable },
@@ -30,39 +30,71 @@ export default{
 
   data: function(){
       return {
-          editing: false,
+          edit: false,
           message: ""
       }
   },
-
+  directives: {
+        focus: {
+            // ディレクティブ定義
+            inserted: function (el) {
+                el.focus();
+            }
+        }
+    },
   methods: {
     smallMoved: function(event) {
-          const evt = event.added || event.moved
-          if (evt == undefined){ return }
-
-          const element = evt.element
-          const list_index = window.store.lists.findIndex((list) => {
-              return list.kanban_smalls.find((big) => {
-              return big.id == element.id
+      const evt = event.added || event.moved
+      if (evt == undefined){ return }
+        const element = evt.element
+        if (element.flag == undefined){
+          console.log('aaaaa')
+          window.store.lists.forEach(big =>{
+            big.kanban_smalls.forEach(small => {
+              if(small.id == element.id){
+                var data = new FormData
+                data.append("small[kanban_big_id]", big.id)
+                data.append("small[position]", evt.newIndex + 1)
+                // console.log(`list_index:${list_index}, element.id:${element.id}`)a
+                Rails.ajax({
+                    url: `/kanban_smalls/${element.id}/move`,
+                    type: "PATCH",
+                    data: data,
+                    dataType: "json",
+                 })
+                }
               })
-          })
-
-          var data = new FormData
-          data.append("small[kanban_big_id]", window.store.lists[list_index].id)
-          data.append("small[position]", evt.newIndex + 1)
-          console.log(`list_index:${list_index}, element.id:${element.id}`)
-          Rails.ajax({
-              url: `/kanban_smalls/${element.id}/move`,
-              type: "PATCH",
-              data: data,
-              dataType: "json",
-          })
+            })          
+          }else{
+            window.store.lists.forEach(big => {
+              big.kanban_smalls.forEach(small =>{
+                if (small.id == undefined){
+                  const big_index = window.store.lists.indexOf(big)
+                  const small_index = big.kanban_smalls.indexOf(small)
+                  // console.log(this.list.kanban_smalls[small_index])
+                  this.list.kanban_smalls[small_index].cards.splice(0,1)
+                  var data = new FormData
+                  data.append("small[kanban_big_id]", window.store.lists[big_index].id)
+                  data.append("small[position]", evt.newIndex + 1)
+                  data.append("small[name]", small.name)
+                  data.append("small[kanban_id]", window.store.id)
+                  Rails.ajax({
+                    url: `/kanban_smalls`,
+                    type: "POST",
+                    data: data,
+                    dataType: "json",
+                  })
+                }
+              })
+            })
+        }
       },
       cardMoved: function(event) {
         console.log(event)
         const evt = event.added || event.moved
         if (evt == undefined){ return }
         const element = evt.element
+        if (element.flag == undefined){
           window.store.lists.forEach(big => {
             big.kanban_smalls.forEach(small =>{
               small.cards.forEach(card =>{
@@ -80,6 +112,29 @@ export default{
               })
             })              
           });
+        } else {
+          window.store.lists.forEach(big => {
+            big.kanban_smalls.forEach(small =>{
+              small.cards.forEach(card =>{
+                if (card.id == undefined){
+                  var data = new FormData
+                  console.log(card)
+                  data.append("card[kanban_small_id]",small.id)
+                  data.append("card[position]", evt.newIndex + 1)
+                  data.append("card[content]", card.content)
+                  data.append("card[kanban_id]", window.store.id)   
+                  Rails.ajax({
+                    url: `/cards`,
+                    type: "POST",
+                    data: data,
+                    dataType: "json",
+                  })
+                }
+              })
+            })
+          })
+        }
+          
         },
         deleteCard: function(dbl_card) {
           window.store.lists.forEach( big => {
@@ -107,6 +162,7 @@ export default{
             big.kanban_smalls.forEach( small =>{
               if (small.id == dbl_small){
                 const small_index = big.kanban_smalls.indexOf(small)
+                console.log(`small_index:${small_index}`)
                 this.list.kanban_smalls.splice(small_index,1)
                 Rails.ajax({
                   url: `/kanban_smalls/${small.id}`,
@@ -117,15 +173,39 @@ export default{
               })
             }
           )},
-          deleteBig: function(dbl_big) {
-            console.log(this.$destroy())
-            this.list = null
-            // Rails.ajax({
-            //   url: `/kanban_bigs/${dbl_big}`,
-            //   type: "DELETE",
-            //   dataType: "json",
-            //   })
-            }
+        cardBlur: function(card){
+          card.edit = false
+          var data = new FormData
+          data.append("card[content]", card.content)
+          Rails.ajax({
+                    url: `/cards/${card.id}/move`,
+                    type: "PATCH",
+                    data: data,
+                    dataType: "json",
+                  })
+        },
+        smallBlur: function(small){
+          small.edit = false
+          var data = new FormData
+          data.append("small[name]", small.name)
+          Rails.ajax({
+                    url: `/kanban_smalls/${small.id}/move`,
+                    type: "PATCH",
+                    data: data,
+                    dataType: "json",
+                  })
+        },
+        listBlur: function(list){
+          list.edit = false
+          var data = new FormData
+          data.append("kanban[name]", list.name)
+          Rails.ajax({
+                    url: `/kanban_bigs/${list.id}`,
+                    type: "PATCH",
+                    data: data,
+                    dataType: "json",
+                  })
+        }
         },
         
 
