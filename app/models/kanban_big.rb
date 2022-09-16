@@ -1,7 +1,4 @@
 class KanbanBig < ApplicationRecord
-  acts_as_list
-
-  has_many :kanban_smalls, ->{ order(position: :asc) }, dependent: :destroy
+  has_many :kanban_smalls
   belongs_to :kanban
-  scope :sorted, ->{ order(position: :asc) }
 end
