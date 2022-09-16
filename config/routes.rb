@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root to: 'kanbans#index'
   resources :kanbans do
     member do
       patch :move
@@ -22,6 +23,5 @@ Rails.application.routes.draw do
       delete :destroy
     end
   end
-  root to: "pages#home"
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
