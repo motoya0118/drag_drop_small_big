@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_04_010011) do
+ActiveRecord::Schema.define(version: 2022_09_16_041602) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 2022_09_04_010011) do
     t.bigint "kanban_small_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "edit", default: false, null: false
     t.index ["kanban_small_id"], name: "index_cards_on_kanban_small_id"
   end
 
@@ -29,6 +30,8 @@ ActiveRecord::Schema.define(version: 2022_09_04_010011) do
     t.bigint "kanban_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "position"
+    t.boolean "edit", default: false, null: false
     t.index ["kanban_id"], name: "index_kanban_bigs_on_kanban_id"
   end
 
@@ -37,6 +40,8 @@ ActiveRecord::Schema.define(version: 2022_09_04_010011) do
     t.bigint "kanban_big_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "position"
+    t.boolean "edit", default: false, null: false
     t.index ["kanban_big_id"], name: "index_kanban_smalls_on_kanban_big_id"
   end
 
@@ -45,6 +50,7 @@ ActiveRecord::Schema.define(version: 2022_09_04_010011) do
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "position"
   end
 
   add_foreign_key "cards", "kanban_smalls"
