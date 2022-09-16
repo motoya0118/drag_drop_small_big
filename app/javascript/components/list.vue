@@ -1,12 +1,12 @@
 <template>
-  <div v-if="!list.edit" class="list" @dblclick="$emit('delete',list.id)" @click="list.edit=true">
+  <div v-if="!list.edit" class="list" @click="oneClickBig(list)">
     <h6>{{ list.name }}</h6>
     <hr />
     <draggable v-model="list.kanban_smalls" :options="{group: 'smalls'}" class="dragArea" @change="smallMoved">
-      <div v-if="!small.edit" v-for="(small, index) in list.kanban_smalls" class="small small-body" @dblclick.stop="deleteSmall(small.id)" @click.stop="small.edit = true">
+      <div v-if="!small.edit" v-for="(small, index) in list.kanban_smalls" class="small small-body" @click.stop="oneClickSmall(small)">
         {{ small.name }}
         <draggable v-model="small.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
-          <div v-if="!card.edit" v-for="(card, index) in small.cards" class="card card-body" @dblclick.stop="deleteCard(card.id)" @click.stop="card.edit = true">
+          <div v-if="!card.edit" v-for="(card, index) in small.cards" class="card card-body" @click.stop="oneClickCard(card)">
             {{ card.content }}
           </div>
           <input v-else type="text" class="form-control" v-model="card.content" v-on:blur="cardBlur(card)" v-focus></input>
@@ -31,8 +31,12 @@ export default{
   data: function(){
       return {
           edit: false,
-          message: ""
-      }
+          message: "",
+          result: [],
+          delay: 300,
+          clicks: 0,
+          timer: null
+        }
   },
   directives: {
         focus: {
@@ -205,7 +209,49 @@ export default{
                     data: data,
                     dataType: "json",
                   })
-        }
+        },
+        oneClickCard: function(card){
+          this.clicks++ 
+          if(this.clicks === 1) {
+            var self = this
+            this.timer = setTimeout(function() {
+              card.edit = true
+              self.clicks = 0
+            }, this.delay);
+          } else{
+             clearTimeout(this.timer);  
+             this.deleteCard(card.id);
+             self.clicks = 0
+          }        	
+        },
+        oneClickSmall: function(small){
+          this.clicks++ 
+          if(this.clicks === 1) {
+            var self = this
+            this.timer = setTimeout(function() {
+              small.edit = true
+              self.clicks = 0
+            }, this.delay);
+          } else{
+             clearTimeout(this.timer);  
+             this.deleteSmall(small.id);
+             self.clicks = 0
+          }        	
+        },
+        oneClickBig: function(big){
+          this.clicks++ 
+          if(this.clicks === 1) {
+            var self = this
+            this.timer = setTimeout(function() {
+              big.edit = true
+              self.clicks = 0
+            }, this.delay);
+          } else{
+             clearTimeout(this.timer);
+             this.$emit('delete',big.id);  
+             self.clicks = 0
+          }        	
+        }                        
         },
         
 
