@@ -7,10 +7,22 @@
 
 import Vue from 'vue'
 import App from '../app.vue'
+import Insert from '../insert_bigs.vue'
+import Smalls from '../insert_smalls.vue'
+import Cards from '../insert_cards.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new Vue({
     render: h => h(App)
+  }).$mount()
+  const insert = new Vue({
+    render: h => h(Insert)
+  }).$mount()
+  const smalls = new Vue({
+    render: h => h(Smalls)
+  }).$mount()
+  const cards = new Vue({
+    render: h => h(Cards)
   }).$mount()
   document.body.appendChild(app.$el)
 
