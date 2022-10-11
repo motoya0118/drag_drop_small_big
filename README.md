@@ -1,1 +1,9 @@
-Rails app generated with [lewagon/rails-templates](https://github.com/lewagon/rails-templates), created by the [Le Wagon coding bootcamp](https://www.lewagon.com) team.
+## アプリケーションの実行手順
+```:terminal
+git clone git@github.com:motoya0118/kj_method.git
+cd kj_method
+bundle install
+rails db:create db:migrate
+rails webpacker:install
+rails s
+```
